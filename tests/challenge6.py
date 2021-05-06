@@ -1,44 +1,28 @@
-from idlelib import browser
-
-import pytest
-from _pytest import unittest
-
-from objects import homepage
-from selenium.webdriver.support.wait import WebDriverWait
+import unittest
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as cond, wait
-
 from objects.homepage import HomePage
 
 
-@pytest.mark.usefixtures("browser")
 class Challenge6(unittest.TestCase):
-    homepage = HomePage(browser)
+
+    def setUp(self):
+        self.homepage = HomePage(webdriver.Chrome("../chromedriver.exe"))
+
+    def tearDown(self):
+        self.homepage.tear_down()
 
     def test_challenge6(self):
-        homepage.setUp()
-        self.driver.find_element_by_css_selector("input[id='input-search']").send_keys("nissan")
-        self.driver.find_element_by_css_selector("button[data-uname='homepageHeadersearchsubmit']").click()
-        # table = WebDriverWait(self.driver, 10).until(cond.visibility_of_element_located((By.TAG_NAME, 'tbody')))
-        WebDriverWait(self.driver, 10).until(cond.visibility_of_element_located((By.TAG_NAME, 'tbody')))
-        # self.assertIn("nissan", table.text)
-
-        # waiting for loading wheel
-        WebDriverWait(self.driver, 60).until(
-            cond.invisibility_of_element_located((By.XPATH, "//*[@id=\"serverSideDataTable_processing\"]")))
-
-        # expand the model search input box and search for "skyline".
-        self.driver.find_element_by_xpath('//*[@data-uname="ModelFilter"]').click()
-        models = self.driver.find_element_by_xpath('//*[@id="collapseinside4"]/form/div/input')
-        models.send_keys("skyline")
-
-        # verify that "skyline" is present in the search and take a screenshot
+        self.homepage.set_up()
+        results = self.homepage.search("Nissan")
+        # print(results)
         try:
-            WebDriverWait(self.driver, 10).until(cond.presence_of_element_located(By.ID, "lot_model_descSKYLINE"))
-            print("The model 'Skyline' is present")
-        except:
-            self.driver.save_screenshot(f"../screenshots/screenshot.png")
+            self.assertIn("SKYLINE", self.homepage.get_make_results())
+            # self.assertIn("ALTIMA", self.homepage.get_make_results())
+
+        except AssertionError as error:
+            print(error)
+            self.homepage.take_screenshot("challenge6SearchResults")
+            raise error
 
 
 if __name__ == '__main__':

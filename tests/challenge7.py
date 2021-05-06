@@ -25,19 +25,19 @@ class Challenge7(unittest.TestCase):
         link = []
 
         for eachMake in trending_vehicles:
-            print(eachMake.text)
+            trending.append(eachMake.get_attribute("innerText"))
             link.append(eachMake.get_attribute("href"))
 
         array_inception = zip(trending, link)
-        print(trending)
+        # print(trending)
 
         for each in array_inception:
             self.driver.get(each[1])
-            each_trending_vehicle = WebDriverWait(self.driver, 10).until(cond.visibility_of_element_located((By.TAG_NAME, "tbody")))
-            self.assertIn(each[0], each_trending_vehicle.text)
-            if each == "More":
+            if each[0] == "More...":
                 pass
             else:
+                each_trending_vehicle = WebDriverWait(self.driver, 10).until(cond.visibility_of_element_located((By.TAG_NAME, "tbody")))
+                self.assertIn(each[0], each_trending_vehicle.text)
                 print(f'{each[0]} is in {each[1]}')
 
 

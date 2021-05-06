@@ -5,34 +5,35 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as cond, wait
 
+from objects.homepage import HomePage
+
 
 class Challenge5(unittest.TestCase):
 
     def setUp(self):
-        self.driver = webdriver.Chrome("../chromedriver.exe")
+        self.browser = webdriver.Chrome("../chromedriver.exe")
+        self.homepage = HomePage(webdriver.Chrome("../chromedriver.exe"))
 
     def tearDown(self):
-        self.driver.close()
+        self.browser.close()
+        self.homepage.tear_down()
 
     def test_challenge5(self):
-        self.driver.get("https://www.copart.com")
-        self.driver.maximize_window()
-        self.driver.find_element_by_css_selector("input[id='input-search']").send_keys("Porsche")
-        self.driver.find_element_by_css_selector("button[data-uname='homepageHeadersearchsubmit']").click()
-        WebDriverWait(self.driver, 10).until(cond.visibility_of_element_located((By.TAG_NAME, 'tbody')))
+        self.homepage.set_up()
+        results = self.homepage.search("PORSCHE")
 
         # change results value from 20 to 100
-        self.driver.find_element_by_xpath('//*[@id="serverSideDataTable_length"]/label/select/option[3]').click()
+        self.homepage.change_search_count
 
         # waiting for loading wheel
-        WebDriverWait(self.driver, 60).until(
+        WebDriverWait(self.browser, 60).until(
             cond.invisibility_of_element_located((By.XPATH, "//*[@id=\"serverSideDataTable_processing\"]")))
 
         # results = self.driver.find_element_by_xpath("//*[@id='serverSideDataTable_info']")
         # print(results.text)
 
-        models_returned = self.driver.find_elements(By.XPATH, "//span[@data-uname=\"lotsearchLotmodel\"]")
-        damage_list = self.driver.find_elements(By.XPATH, "//span[@data-uname=\"lotsearchLotdamagedescription\"]")
+        models_returned = self.browser.find_elements(By.XPATH, "//span[@data-uname=\"lotsearchLotmodel\"]")
+        damage_list = self.browser.find_elements(By.XPATH, "//span[@data-uname=\"lotsearchLotdamagedescription\"]")
 
         models_returned = []
         for model in models_returned:
@@ -61,6 +62,7 @@ class Challenge5(unittest.TestCase):
                 damage["All Other"] += 1
         for attribute, value in damage.items():
             print(f'{attribute} : {value}')
+        pass
 
 
 if __name__ == '__main__':
